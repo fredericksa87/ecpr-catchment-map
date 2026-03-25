@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<!--
+   ______                            __
+  / ____/___  ____ ___  ____  __  __/ /____  _____
+ / /   / __ \/ __ `__ \/ __ \/ / / / __/ _ \/ ___/
+/ /___/ /_/ / / / / / / /_/ / /_/ / /_/  __/ /
+\____/\____/_/ /_/ /_/ .___/\__,_/\__/\___/_/
+                    /_/
+        Created with Perplexity Computer
+        https://www.perplexity.ai/computer
+-->
+<meta name="generator" content="Perplexity Computer">
+<meta name="author" content="Perplexity Computer">
+<meta property="og:see_also" content="https://www.perplexity.ai/computer">
+<link rel="author" href="https://www.perplexity.ai/computer">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ECPR Catchment Analysis — Medical City Healthcare</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="header-left">
+      <svg class="logo" viewBox="0 0 32 32" width="32" height="32" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="32" height="32" rx="6" fill="#1a3a5c"/>
+        <path d="M16 6v20M6 16h20" stroke="#fff" stroke-width="3.5" stroke-linecap="round"/>
+        <circle cx="16" cy="16" r="7" stroke="#4da6c9" stroke-width="2" fill="none"/>
+      </svg>
+      <div class="header-titles">
+        <h1>ECPR Catchment Analysis</h1>
+        <p class="subtitle">Medical City Healthcare — 45-Minute EMS Transport Radius</p>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="header-badge">
+        <span class="badge-label">Data Sources</span>
+        <span class="badge-value">CARES 2024 · NCTCOG 2025</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Layout -->
+  <div class="main-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-section">
+        <h2 class="sidebar-heading">ECPR Center Selection</h2>
+        <p class="sidebar-desc">Toggle hospitals to model catchment coverage. Overlapping areas show combined reach.</p>
+        <div class="hospital-toggles" id="hospitalToggles"></div>
+      </div>
+
+      <div class="sidebar-section">
+        <h2 class="sidebar-heading">Scenario Presets</h2>
+        <div class="preset-buttons">
+          <button class="preset-btn" data-preset="all" title="All 5 hospitals active">All Centers</button>
+          <button class="preset-btn" data-preset="plano-only" title="Medical City Plano only">Plano Only</button>
+          <button class="preset-btn" data-preset="frisco-only" title="Medical City Frisco only">Frisco Only</button>
+          <button class="preset-btn" data-preset="plano-frisco" title="Plano + Frisco">Plano + Frisco</button>
+          <button class="preset-btn" data-preset="north" title="Plano + Frisco + McKinney">North Corridor</button>
+          <button class="preset-btn" data-preset="east-west" title="Sachse + Las Colinas">East + West</button>
+        </div>
+      </div>
+
+      <div class="sidebar-section stats-section">
+        <h2 class="sidebar-heading">Combined Estimates</h2>
+        <div class="scenario-label" id="scenarioLabel">All 5 Centers Active</div>
+        <div class="stats-grid" id="statsGrid">
+          <div class="stat-card">
+            <div class="stat-icon pop-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </div>
+            <div class="stat-content">
+              <span class="stat-label">Catchment Population</span>
+              <span class="stat-value" id="statPop">—</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon ohca-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            </div>
+            <div class="stat-content">
+              <span class="stat-label">Predicted Annual OHCA</span>
+              <span class="stat-value" id="statOHCA">—</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon ecpr-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            </div>
+            <div class="stat-content">
+              <span class="stat-label">ECPR Eligible (18-75, Shockable)</span>
+              <span class="stat-value" id="statECPR">—</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon goal-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+            </div>
+            <div class="stat-content">
+              <span class="stat-label">Conservative Activation Goal</span>
+              <span class="stat-value" id="statGoal">—</span>
+            </div>
+          </div>
+        </div>
+        <div class="hospital-breakdown" id="hospitalBreakdown"></div>
+      </div>
+
+      <div class="sidebar-section methodology-section">
+        <h2 class="sidebar-heading">Methodology</h2>
+        <div class="methodology-text">
+          <p><strong>OHCA Incidence:</strong> 110 per 100,000 population/year (CARES 2024 registry, EMS-assessed non-traumatic)</p>
+          <p><strong>Shockable Rhythm:</strong> 18.1% of OHCA present with VF/pVT (CARES 2024)</p>
+          <p><strong>Age Filter (18-75):</strong> ~83% of shockable OHCA fall within 18-75 age range</p>
+          <p><strong>ECPR Eligibility:</strong> ~15-17% of shockable, age-eligible OHCA are refractory candidates</p>
+          <p><strong>Activation Goal:</strong> Conservative estimate based on 15-19% of eligible candidates meeting full refractory criteria</p>
+          <p><strong>Catchment Radius:</strong> 45-minute ground EMS transport (~17 mi / 27 km straight-line radius, accounting for road routing factor)</p>
+          <p><strong>Population:</strong> NCTCOG 2025 estimates for all cities within radius</p>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Map Container -->
+    <div class="map-container">
+      <div id="map"></div>
+      <div class="map-legend" id="mapLegend">
+        <h3>Legend</h3>
+        <div class="legend-items" id="legendItems"></div>
+        <div class="legend-item">
+          <span class="legend-swatch overlap-swatch"></span>
+          <span>Overlapping Coverage</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p class="footer-note">*Estimates based on 2025-2026 population data (NCTCOG) and national OHCA incidence (CARES 2024). Eligibility accounts for age and rhythm criteria; activation goal reflects refractory cases meeting full clinical criteria within 45-minute transport window.</p>
+    <a href="https://www.perplexity.ai/computer" target="_blank" rel="noopener noreferrer" class="footer-attr">Created with Perplexity Computer</a>
+  </footer>
+
+  <script src="./app.js"></script>
+</body>
+</html>
