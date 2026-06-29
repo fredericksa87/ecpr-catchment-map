@@ -59,6 +59,17 @@ const hospitals = [
     color: '#e6a817',
     beds: 80,
     active: true
+  },
+  {
+    id: 'lewisville',
+    name: 'Medical City Lewisville',
+    shortName: 'Lewisville',
+    address: '500 W Main St, Lewisville, TX 75057',
+    lat: 33.0445,
+    lng: -97.0050,
+    color: '#14a098',
+    beds: 191,
+    active: true
   }
 ];
 
@@ -390,7 +401,7 @@ let prevStats = { population: 0, ohca: 0, ecprEligibleLow: 0, ecprEligibleHigh: 
 function getScenarioLabel() {
   const active = hospitals.filter(h => h.active);
   if (active.length === 0) return 'No Centers Selected';
-  if (active.length === hospitals.length) return 'All 5 Centers Active';
+  if (active.length === hospitals.length) return `All ${hospitals.length} Centers Active`;
   if (active.length === 1) return active[0].shortName + ' Only';
   return active.map(h => h.shortName).join(' + ');
 }
@@ -531,7 +542,7 @@ function updateMap() {
 
 // === PRESET SCENARIOS ===
 const presets = {
-  'all': ['plano', 'frisco', 'mckinney', 'sachse', 'lascolinas'],
+  'all': ['plano', 'frisco', 'mckinney', 'sachse', 'lascolinas', 'lewisville'],
   'plano-only': ['plano'],
   'frisco-only': ['frisco'],
   'plano-frisco': ['plano', 'frisco'],
